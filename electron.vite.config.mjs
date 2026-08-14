@@ -3,7 +3,14 @@ import { defineConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  main: {},
+  main: {
+    // Explicitly tell Rollup to leave the native C++ binary alone
+    build: {
+      rollupOptions: {
+        external: ['better-sqlite3']
+      }
+    }
+  },
   preload: {},
   renderer: {
     resolve: {

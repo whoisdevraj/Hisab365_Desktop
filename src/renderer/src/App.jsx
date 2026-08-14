@@ -1,33 +1,46 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import { useEffect, useState } from 'react'
 
 function App() {
-  const ipcHandle = () => window.electron.ipcRenderer.send('ping')
+  const [status, setStatus] = useState('Connecting to database...')
+  const [customers, setCustomers] = useState([])
+
+  useEffect(() => {
+    async function testDB() {
+      try {
+        // 1. Insert a test customer
+        await window.api.db.execute(
+          'INSERT INTO customers (name, phone_no, total_amount_receivable) VALUES (?, ?, ?)',
+          ['Devraj Store', '9876543210', 5000]
+        )
+
+        // 2. Fetch customers
+        const data = await window.api.db.select('SELECT * FROM customers')
+        setCustomers(data)
+        setStatus('✅ Database Connected & Working!')
+      } catch (err) {
+        console.error(err)
+        setStatus(`❌ DB Error: ${err.message}`)
+      }
+    }
+
+    testDB()
+  }, [])
 
   return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-      </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
+    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+      <h1>Hisab365 Desktop</h1>
+      <p>
+        <strong>Status:</strong> {status}
       </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-      </div>
-      <Versions></Versions>
-    </>
+      <h3>Customer Records:</h3>
+      <ul>
+        {customers.map((c) => (
+          <li key={c.id}>
+            {c.name} - {c.phone_no} (Receivable: ₹{c.total_amount_receivable})
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 
