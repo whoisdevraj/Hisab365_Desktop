@@ -301,6 +301,8 @@ export const schema = {
       sgst_amount REAL DEFAULT 0,
       cgst_amount REAL DEFAULT 0,
       igst_amount REAL DEFAULT 0,
+      ad_valorem_cess_amount REAL DEFAULT 0,     -- 👈 Added header tracking
+      non_ad_valorem_cess_amount REAL DEFAULT 0,
       amount_excl_gst REAL,
       total_amount REAL,
       ref_enquiry_no TEXT,                  -- optional reference to an enquiry
@@ -321,7 +323,10 @@ export const schema = {
       rate REAL,
       discount REAL DEFAULT 0,
       gst_percent REAL,
+      cess_percent REAL DEFAULT 0,       -- 👈 Lock in custom line CESS %
+      cess_flat REAL DEFAULT 0,
       amount_excl_gst REAL,
+      cess_amount REAL DEFAULT 0,
       gst_amount REAL,
       total_amount REAL,
       FOREIGN KEY (quotation_id) REFERENCES quotations(id),
@@ -338,8 +343,11 @@ export const schema = {
       rate REAL,
       discount REAL DEFAULT 0,
       gst_percent REAL,
+      cess_percent REAL DEFAULT 0,       -- 👈 Lock in custom service CESS %
+      cess_flat REAL DEFAULT 0,          -- 👈 Lock in custom service flat CESS
       amount_excl_gst REAL,
       gst_amount REAL,
+      cess_amount REAL DEFAULT 0,
       total_amount REAL,
       FOREIGN KEY (quotation_id) REFERENCES quotations(id),
       FOREIGN KEY (service_id) REFERENCES services(id)
@@ -358,6 +366,8 @@ export const schema = {
       amount_excl_gst REAL,
       gst_percent REAL,
       gst_amount REAL,
+      ad_valorem_cess_amount REAL DEFAULT 0,     -- 👈 Added
+      non_ad_valorem_cess_amount REAL DEFAULT 0,
       total_amount REAL,
       created_at TEXT,
       FOREIGN KEY (quotation_id) REFERENCES quotations(id),
@@ -375,8 +385,11 @@ export const schema = {
   rate REAL,
   discount REAL DEFAULT 0,
   gst_percent REAL,
-  amount_excl_gst REAL,
-  gst_amount REAL,
+  cess_percent REAL DEFAULT 0,
+    cess_flat REAL DEFAULT 0,
+      amount_excl_gst REAL,
+      gst_amount REAL,
+      cess_amount REAL DEFAULT 0,
   total_amount REAL,
   FOREIGN KEY (proforma_invoice_id) REFERENCES proforma_invoices(id),
   FOREIGN KEY (item_id) REFERENCES inventory_items(id)
@@ -384,20 +397,23 @@ export const schema = {
   `,
 
   proforma_invoice_services: `
-  CREATE TABLE IF NOT EXISTS proforma_invoice_services (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  proforma_invoice_id INTEGER,
-  service_id INTEGER,
-  quantity INTEGER,
-  rate REAL,
-  discount REAL DEFAULT 0,
-  gst_percent REAL,
-  amount_excl_gst REAL,
-  gst_amount REAL,
-  total_amount REAL,
-  FOREIGN KEY (proforma_invoice_id) REFERENCES proforma_invoices(id),
-  FOREIGN KEY (service_id) REFERENCES services(id)
-);
+    CREATE TABLE IF NOT EXISTS proforma_invoice_services (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      proforma_invoice_id INTEGER,
+      service_id INTEGER,
+      quantity INTEGER,
+      rate REAL,
+      discount REAL DEFAULT 0,
+      gst_percent REAL,
+      cess_percent REAL DEFAULT 0,
+      cess_flat REAL DEFAULT 0,
+      amount_excl_gst REAL,
+      gst_amount REAL,
+      cess_amount REAL DEFAULT 0,
+      total_amount REAL,
+      FOREIGN KEY (proforma_invoice_id) REFERENCES proforma_invoices(id),
+      FOREIGN KEY (service_id) REFERENCES services(id)
+    );
   `,
 
   // 13. FINAL CUSTOMER INVOICES
@@ -410,6 +426,8 @@ export const schema = {
   ref_customer_Po_no TEXT,
   amount_excl_gst REAL,
   gst_amount REAL,
+  ad_valorem_cess_amount REAL DEFAULT 0,
+      non_ad_valorem_cess_amount REAL DEFAULT 0,
   total_amount REAL,
   amount_paid REAL DEFAULT 0,
   payment_status TEXT DEFAULT 'incomplete', -- options: complete, partial, incomplete
@@ -433,23 +451,35 @@ export const schema = {
     rate REAL,
     discount REAL DEFAULT 0,
     gst_percent REAL,
+    cess_percent REAL DEFAULT 0,
+      cess_flat REAL DEFAULT 0,
+      amount_excl_gst REAL,
+      gst_amount REAL,
+      cess_amount REAL DEFAULT 0,
+      total_amount REAL,
     FOREIGN KEY (customer_invoice_id) REFERENCES customer_invoices(id),
     FOREIGN KEY (item_id) REFERENCES inventory_items(id)
   );
 `,
   customer_invoice_services: `
-  CREATE TABLE IF NOT EXISTS customer_invoice_services (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    customer_invoice_id INTEGER,
-    service_id INTEGER,
-    quantity INTEGER,
-    rate REAL,
-    discount REAL DEFAULT 0,
-    gst_percent REAL,
-    FOREIGN KEY (customer_invoice_id) REFERENCES customer_invoices(id),
-    FOREIGN KEY (service_id) REFERENCES services(id)
-  );
-`,
+    CREATE TABLE IF NOT EXISTS customer_invoice_services (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      customer_invoice_id INTEGER,
+      service_id INTEGER,
+      quantity INTEGER,
+      rate REAL,
+      discount REAL DEFAULT 0,
+      gst_percent REAL,
+      cess_percent REAL DEFAULT 0,
+      cess_flat REAL DEFAULT 0,
+      amount_excl_gst REAL,
+      gst_amount REAL,
+      cess_amount REAL DEFAULT 0,
+      total_amount REAL,
+      FOREIGN KEY (customer_invoice_id) REFERENCES customer_invoices(id),
+      FOREIGN KEY (service_id) REFERENCES services(id)
+    );
+  `,
 
   delivery_challans: `
 CREATE TABLE IF NOT EXISTS delivery_challans (
